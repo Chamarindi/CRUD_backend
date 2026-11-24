@@ -24,18 +24,18 @@ public class InventoryController {
 
     @PostMapping("/inventory/itemImg")
     public String itemImage(@RequestParam("file") MultipartFile file){
-        String folder = "src/main/Uploads/";
+        String folder = "src/main/uploads/";
         String itemImage = file.getOriginalFilename();
 
         try {
             File uploadDir = new File(folder);
             if (!uploadDir.exists()) {
-                uploadDir.mkdir();
+                uploadDir.mkdirs();
             }
-            file.transferTo(Paths.get(folder + itemImage));
+            file.transferTo(Paths.get(folder + itemImage).toAbsolutePath());
         }catch(IOException e){
             e.printStackTrace();
-            return "Error uploading fie;" + itemImage;
+            return "Error uploading file;" + itemImage;
         }
         return itemImage;
     }

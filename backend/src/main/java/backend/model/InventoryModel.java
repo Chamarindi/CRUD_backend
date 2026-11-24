@@ -13,8 +13,8 @@ public class InventoryModel {
     private Long id;
     private String itemId;
     private String itemImage;
-    private int itemName;
-    private int itemCategory;
+    private String itemName;
+    private String itemCategory;
     private int itemQty;
     private String itemDetails;
 
@@ -46,19 +46,13 @@ public class InventoryModel {
         this.itemImage = itemImage;
     }
 
-    public int getItemName() {
-        return itemName;
-    }
 
-    public void setItemName(int itemName) {
+    public void setItemName(String itemName) {
         this.itemName = itemName;
     }
 
-    public int getItemCategory() {
-        return itemCategory;
-    }
 
-    public void setItemCategory(int itemCategory) {
+    public void setItemCategory(String itemCategory) {
         this.itemCategory = itemCategory;
     }
 
@@ -78,7 +72,7 @@ public class InventoryModel {
         this.itemDetails = itemDetails;
     }
 
-    public InventoryModel(Long id, String itemId, String itemImage, int itemName, int itemCategory, int itemQty, String itemDetails) {
+    public InventoryModel(Long id, String itemId, String itemImage, String itemName, String itemCategory, int itemQty, String itemDetails) {
         this.id = id;
         this.itemId = itemId;
         this.itemImage = itemImage;
