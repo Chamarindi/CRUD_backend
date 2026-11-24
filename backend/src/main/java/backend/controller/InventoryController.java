@@ -1,14 +1,18 @@
 package backend.controller;
 
+import backend.exception.InventoryNotFoundException;
 import backend.model.InventoryModel;
 import backend.repository.InventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 
 
 @RestController
@@ -18,12 +22,12 @@ public class InventoryController {
     private InventoryRepository inventoryRepository;
 
     @PostMapping("/inventory")
-    public InventoryModel newInventoryModel(@RequestBody InventoryModel newInventoryModel){
+    public InventoryModel newInventoryModel(@RequestBody InventoryModel newInventoryModel) {
         return inventoryRepository.save(newInventoryModel);
     }
 
     @PostMapping("/inventory/itemImg")
-    public String itemImage(@RequestParam("file") MultipartFile file){
+    public String itemImage(@RequestParam("file") MultipartFile file) {
         String folder = "src/main/uploads/";
         String itemImage = file.getOriginalFilename();
 
@@ -33,10 +37,30 @@ public class InventoryController {
                 uploadDir.mkdirs();
             }
             file.transferTo(Paths.get(folder + itemImage).toAbsolutePath());
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             return "Error uploading file;" + itemImage;
         }
         return itemImage;
     }
+
+    @GetMapping("/inventory")
+    List<InventoryModel> getAllItems() {
+        return inventoryRepository.findAll();}
+
+        @GetMapping("/inventory/{id}")
+        InventoryModel getItemId (@PathVariable Long id){
+            return inventoryRepository.findById(id).orElseThrow(() -> new InventoryNotFoundException(id));
+        }
+    private final String UPLOAD_DIR = "src/main/uploads/";
+
+    @GetMapping("/uploads/{filename}")
+    public ResponseEntity<FileSystemResource> getImage(@PathVariable String filename) {
+        File file = new File(UPLOAD_DIR + filename);
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(new FileSystemResource(file));
+    }
+
 }

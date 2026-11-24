@@ -51,9 +51,16 @@ public class InventoryModel {
         this.itemName = itemName;
     }
 
+    public String getItemName() {
+        return itemName;
+    }
+
 
     public void setItemCategory(String itemCategory) {
         this.itemCategory = itemCategory;
+    }
+    public String getItemCategory() {
+        return itemCategory;
     }
 
     public int getItemQty() {
