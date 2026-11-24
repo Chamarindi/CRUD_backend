@@ -8,6 +8,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +62,48 @@ public class InventoryController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(new FileSystemResource(file));
+    }
+
+    @PutMapping("/inventory/{id}")
+    public InventoryModel updateItem(
+            @RequestPart(value = "itemDetails") String itemDetails,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @PathVariable Long id
+    ) {
+        System.out.println("Item Details: " + itemDetails);
+        if (file != null) {
+            System.out.println("File received: " + file.getOriginalFilename());
+        } else {
+            System.out.println("no file uploaded");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        InventoryModel newInventory;
+        try {
+            newInventory = mapper.readValue(itemDetails, InventoryModel.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing itemDetails", e);
+        }
+
+        return inventoryRepository.findById(id).map(existingInventory -> {
+            existingInventory.setItemId(newInventory.getItemId());
+            existingInventory.setItemName(newInventory.getItemName());
+            existingInventory.setItemCategory(newInventory.getItemCategory());
+            existingInventory.setItemQty(newInventory.getItemQty());
+            existingInventory.setItemDetails(newInventory.getItemDetails());
+
+            if (file != null && !file.isEmpty()) {
+                String folder = "src/main/uploads/";
+                String itemImage = file.getOriginalFilename();
+                try {
+                    file.transferTo(Paths.get(folder + itemImage).toAbsolutePath());
+                    existingInventory.setItemImage(itemImage);
+                } catch (IOException e) {
+                    throw new RuntimeException("Error saving uploaded file", e);
+                }
+            }
+            return inventoryRepository.save(existingInventory);
+        }).orElseThrow(() -> new InventoryNotFoundException(id));
     }
 
 }
